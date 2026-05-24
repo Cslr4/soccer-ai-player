@@ -1,0 +1,9 @@
+==================================================
+  命运绿茵 - 球员生涯模拟
+==================================================
+  存档目录: C:\Users\13671\AppData\Local\Temp\saves
+INFO:     127.0.0.1:63507 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63507 - "GET /api/saves HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58520 - "GET /api/config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58548 - "POST /api/player/create_fallback HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58548 - "GET /api/saves HTTP/1.1" 200 OK

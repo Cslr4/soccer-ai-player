@@ -3,13 +3,13 @@ __pycache__/
 *.pyc
 *.pyo
 
-# Build
+# Build（仅排除临时文件，发布包保留）
 build/
-dist/
 
-# Saves（存档不应上传）
+# Saves（存档含 API Key 不上传）
 backend/saves/
 saves/
+dist/saves/
 
 # IDE
 .vscode/
