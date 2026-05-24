@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/13671/Desktop/����ģ��/**)",
+      "Read(//c/Users/13671/.claude/projects/c--Users-13671-Desktop-----/memory/**)",
+      "PowerShell(Invoke-WebRequest -Uri \"http://127.0.0.1:8000/api/config\" -UseBasicParsing)",
+      "PowerShell(Invoke-WebRequest -Uri \"http://127.0.0.1:8000/api/config\" -UseBasicParsing -TimeoutSec 5)",
+      "PowerShell($body = '{\"option_id\":\"A\",\"custom_text\":\"\"}'; try { $r = Invoke-WebRequest -Uri \"http://127.0.0.1:8000/api/game/nonexistent/event_choice/stream\" -Method Post -Body $body -ContentType \"application/json\" -UseBasicParsing -TimeoutSec 5; $r.Content } catch { $_.Exception.Response.StatusCode.value__; \\(New-Object System.IO.StreamReader\\($_.Exception.Response.GetResponseStream\\(\\)\\)\\).ReadToEnd\\(\\) })",
+      "PowerShell($body = '{\"name\":\"测试球员\",\"team_name\":\"曼联\",\"nationality\":\"中国\",\"position\":\"中锋\",\"age\":22,\"height\":180,\"weight\":75}'; $r = Invoke-WebRequest -Uri \"http://127.0.0.1:8000/api/player/create_fallback\" -Method Post -Body $body -ContentType \"application/json\" -UseBasicParsing -TimeoutSec 10; $r.Content)",
+      "PowerShell($p = Get-NetTCPConnection -LocalPort 8000 -ErrorAction SilentlyContinue | Select-Object -First 1; if \\($p\\) { Stop-Process -Id $p.OwningProcess -Force; Write-Host \"Killed PID $\\($p.OwningProcess\\)\" } else { Write-Host \"No process on port 8000\" })",
+      "PowerShell($conn = Get-NetTCPConnection -LocalPort 8000 -ErrorAction SilentlyContinue; $conn | Select-Object LocalAddress, LocalPort, State, OwningProcess; $conn | ForEach-Object { Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue | Select-Object Id, ProcessName })",
+      "PowerShell(Stop-Process -Force -ErrorAction SilentlyContinue)",
+      "PowerShell(python -c \"import sys; print\\(sys.executable\\); print\\(sys.path[:3]\\)\")",
+      "PowerShell(python -c \"import fastapi; print\\('fastapi OK'\\)\")",
+      "PowerShell(pip install fastapi httpx pydantic uvicorn 2>&1)",
+      "PowerShell(& \"C:\\\\Users\\\\13671\\\\anaconda3\\\\envs\\\\lstm_env\\\\python.exe\" --version)",
+      "PowerShell($f = Get-Item \"C:\\\\Users\\\\13671\\\\Desktop\\\\足球模拟 - 电脑\\\\dist\\\\命运绿茵.exe\"; \"大小: {0:N0} MB · 时间: {1}\" -f \\($f.Length/1MB\\), $f.LastWriteTime)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\13671\\Desktop\\����ģ��\\backend",
+      "c:\\Users\\13671\\Desktop\\����ģ�� - ����\\backend",
+      "C:\\Users\\13671\\Desktop\\����ģ�� - ����\\dist",
+      "c:\\Users\\13671\\Desktop\\����ģ��\\backend",
+      "c:\\Users\\13671\\Desktop\\足球模拟"
+    ]
+  }
+}
