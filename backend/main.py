@@ -738,6 +738,14 @@ for _d in candidates:
         break
 print(f"  FRONTEND_DIR={FRONTEND_DIR}")
 
+@app.get("/sw.js")
+async def no_sw():
+    return Response(content="", media_type="application/javascript")
+
+@app.get("/favicon.ico")
+async def no_fav():
+    return Response(status_code=204)
+
 @app.get("/")
 async def serve():
     # Try standalone first, fall back to split files
