@@ -759,3 +759,24 @@ if __name__ == "__main__":
 @app.on_event("shutdown")
 async def shutdown():
     await close_client()
+
+if __name__ == "__main__":
+    import io
+    import sys as _sys
+    _sys.stdout = io.TextIOWrapper(_sys.stdout.buffer, encoding='utf-8', errors='replace')
+    import uvicorn
+    import webbrowser
+    import threading
+    import time
+
+    print("=" * 50)
+    print("  命运绿茵 - 球员生涯模拟")
+    print("=" * 50)
+
+    def open_browser():
+        time.sleep(1.5)
+        webbrowser.open("http://127.0.0.1:8000")
+    threading.Thread(target=open_browser, daemon=True).start()
+
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")
