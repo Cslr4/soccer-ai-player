@@ -14,14 +14,25 @@
       "PowerShell(python -c \"import fastapi; print\\('fastapi OK'\\)\")",
       "PowerShell(pip install fastapi httpx pydantic uvicorn 2>&1)",
       "PowerShell(& \"C:\\\\Users\\\\13671\\\\anaconda3\\\\envs\\\\lstm_env\\\\python.exe\" --version)",
-      "PowerShell($f = Get-Item \"C:\\\\Users\\\\13671\\\\Desktop\\\\足球模拟 - 电脑\\\\dist\\\\命运绿茵.exe\"; \"大小: {0:N0} MB · 时间: {1}\" -f \\($f.Length/1MB\\), $f.LastWriteTime)"
+      "PowerShell($f = Get-Item \"C:\\\\Users\\\\13671\\\\Desktop\\\\足球模拟 - 电脑\\\\dist\\\\命运绿茵.exe\"; \"大小: {0:N0} MB · 时间: {1}\" -f \\($f.Length/1MB\\), $f.LastWriteTime)",
+      "Bash(python -c \"from main import app; print\\('OK'\\)\")",
+      "Bash(Start-Process python *)",
+      "Bash(Start-Sleep -Seconds 4)",
+      "Bash(curl -s http://127.0.0.1:8000/)",
+      "Bash(Get-Process python* -ErrorAction SilentlyContinue)",
+      "Bash(Stop-Process -Force)",
+      "Bash(cp \"c:/Users/13671/Desktop/绿茵英雄/backend/standalone.html\" \"c:/Users/13671/Desktop/绿茵英雄/frontend/standalone.html\" *)",
+      "Bash(python -c ' *)",
+      "Bash(curl -s http://127.0.0.1:8099/)",
+      "Bash(kill %1)"
     ],
     "additionalDirectories": [
       "C:\\Users\\13671\\Desktop\\����ģ��\\backend",
       "c:\\Users\\13671\\Desktop\\����ģ�� - ����\\backend",
       "C:\\Users\\13671\\Desktop\\����ģ�� - ����\\dist",
       "c:\\Users\\13671\\Desktop\\����ģ��\\backend",
-      "c:\\Users\\13671\\Desktop\\足球模拟"
+      "c:\\Users\\13671\\Desktop\\足球模拟",
+      "c:\\Users\\13671\\Desktop\\绿茵英雄\\backend"
     ]
   }
 }

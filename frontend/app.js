@@ -884,6 +884,7 @@ function renderGame() {
         <button class="top-btn" onclick="openModal('news')">📰 新闻</button>
         ${pendingOffers.length > 0 ? '<button class="top-btn" style="color:var(--gold);border-color:var(--gold);" onclick="openTransferOffers()">📨 报价(' + pendingOffers.length + ')</button>' : ''}
         <button class="top-btn back-menu-btn" onclick="doBackToMenu()">🏠 菜单</button>
+        <button class="top-btn back-menu-btn" onclick="resetAISetup()" style="margin-right:4px;">⚙</button>
       </div>
       <div style="font-size:11px;color:var(--text2);text-align:right;">第${s.season||'?'}赛季<br>${s.round_name||''}</div>
     </div>

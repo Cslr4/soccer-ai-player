@@ -8,7 +8,7 @@ import json
 import random
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 
 from config import POSITIONS, ALL_ATTRS, ROUNDS
 from models import CreatePlayerReq, AdjustAttrReq, FreeTalkReq, EventChoiceReq, DialogueEntry
@@ -655,9 +655,20 @@ class SetupReq(BaseModel):
 @app.post("/api/setup")
 async def api_setup(req: SetupReq):
     import config, ai_engine
-    key = req.api_key or config.DEEPSEEK_API_KEY
-    url = req.base_url or config.DEEPSEEK_BASE_URL
-    model = req.model or config.DEEPSEEK_MODEL
+    key = req.api_key if req.api_key.strip() else config.DEEPSEEK_API_KEY
+    url = req.base_url if req.base_url.strip() else config.DEEPSEEK_BASE_URL
+    model = req.model if req.model.strip() else config.DEEPSEEK_MODEL
+
+    # 如果是空 key（重设），直接清空不测试
+    if not req.api_key.strip() and not key.strip():
+        config.DEEPSEEK_API_KEY = "请设置 DEEPSEEK_API_KEY 环境变量"
+        config.DEEPSEEK_BASE_URL = "请设置 DEEPSEEK_BASE_URL 环境变量"
+        config.DEEPSEEK_MODEL = "请设置 DEEPSEEK_MODEL 环境变量"
+        import ai_engine
+        ai_engine.DEEPSEEK_API_KEY = config.DEEPSEEK_API_KEY
+        ai_engine.DEEPSEEK_BASE_URL = config.DEEPSEEK_BASE_URL
+        ai_engine.DEEPSEEK_MODEL = config.DEEPSEEK_MODEL
+        return {"message": "已清除配置", "ready": False}
     
     # 测试连通性
     try:
