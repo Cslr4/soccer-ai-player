@@ -647,24 +647,55 @@ class SetupReq(BaseModel):
     api_key: str = ""
     base_url: str = ""
     model: str = ""
+    test: bool = False  # 是否测试连通（仅手动保存时用）
 
 @app.post("/api/setup")
 async def api_setup(req: SetupReq):
     import config, ai_engine
-    if req.api_key:
-        config.DEEPSEEK_API_KEY = req.api_key
-        ai_engine.DEEPSEEK_API_KEY = req.api_key
-    if req.base_url:
-        config.DEEPSEEK_BASE_URL = req.base_url
-        ai_engine.DEEPSEEK_BASE_URL = req.base_url
-    if req.model:
-        config.DEEPSEEK_MODEL = req.model
-        ai_engine.DEEPSEEK_MODEL = req.model
     global DEEPSEEK_API_KEY, DEEPSEEK_BASE_URL, DEEPSEEK_MODEL
-    DEEPSEEK_API_KEY = config.DEEPSEEK_API_KEY
-    DEEPSEEK_BASE_URL = config.DEEPSEEK_BASE_URL
-    DEEPSEEK_MODEL = config.DEEPSEEK_MODEL
-    return {"message": "配置已保存", "ready": True}
+
+    # 空key=清空配置
+    if isinstance(req.api_key, str) and not req.api_key.strip():
+        placeholder = "请设置 DEEPSEEK_API_KEY 环境变量"
+        config.DEEPSEEK_API_KEY = placeholder
+        config.DEEPSEEK_BASE_URL = placeholder
+        config.DEEPSEEK_MODEL = placeholder
+        ai_engine.DEEPSEEK_API_KEY = placeholder
+        ai_engine.DEEPSEEK_BASE_URL = placeholder
+        ai_engine.DEEPSEEK_MODEL = placeholder
+        DEEPSEEK_API_KEY = placeholder
+        DEEPSEEK_BASE_URL = placeholder
+        DEEPSEEK_MODEL = placeholder
+        return {"message": "配置已清除", "ready": False}
+
+    key = str(req.api_key).strip() if req.api_key else config.DEEPSEEK_API_KEY
+    url = str(req.base_url).strip() if req.base_url else config.DEEPSEEK_BASE_URL
+    model = str(req.model).strip() if req.model else config.DEEPSEEK_MODEL
+
+    # 手动保存时才测试连通，避免每次页面加载卡顿
+    if req.test:
+        try:
+            import httpx
+            async with httpx.AsyncClient(timeout=8.0) as c:
+                r = await c.post(f"{url}/v1/chat/completions",
+                    headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+                    json={"model": model, "messages": [{"role":"user","content":"hi"}], "max_tokens": 1})
+                if r.status_code >= 400:
+                    return {"ready": False, "message": f"API 错误 {r.status_code}: {r.text[:100]}"}
+        except Exception as e:
+            return {"ready": False, "message": f"连接失败: {str(e)[:100]}"}
+
+    # 测试通过，保存
+    config.DEEPSEEK_API_KEY = key
+    config.DEEPSEEK_BASE_URL = url
+    config.DEEPSEEK_MODEL = model
+    ai_engine.DEEPSEEK_API_KEY = key
+    ai_engine.DEEPSEEK_BASE_URL = url
+    ai_engine.DEEPSEEK_MODEL = model
+    DEEPSEEK_API_KEY = key
+    DEEPSEEK_BASE_URL = url
+    DEEPSEEK_MODEL = model
+    return {"message": "配置成功", "ready": True}
 
 
 @app.get("/api/saves")

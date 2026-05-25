@@ -2,7 +2,7 @@
 from PyInstaller.utils.hooks import collect_all
 
 datas = [('frontend', 'frontend')]
-binaries = [('C:\\Users\\13671\\anaconda3\\envs\\lstm_env\\Library\\bin\\libcrypto-3-x64.dll', '.'), ('C:\\Users\\13671\\anaconda3\\envs\\lstm_env\\Library\\bin\\libssl-3-x64.dll', '.')]
+binaries = [('C:/Users/13671/anaconda3/envs/lstm_env/Library/bin/libcrypto-3-x64.dll', '.'), ('C:/Users/13671/anaconda3/envs/lstm_env/Library/bin/libssl-3-x64.dll', '.')]
 hiddenimports = ['starlette', 'anyio', 'eval_type_backport', 'achievements', 'uvicorn.loops.auto', 'uvicorn.protocols.http.auto']
 tmp_ret = collect_all('fastapi')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
@@ -16,7 +16,7 @@ datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 
 a = Analysis(
     ['backend\\main.py'],
-    pathex=['C:\\Users\\13671\\anaconda3\\envs\\lstm_env\\Library\\bin'],
+    pathex=['C:/Users/13671/anaconda3/envs/lstm_env/Library/bin'],
     binaries=binaries,
     datas=datas,
     hiddenimports=hiddenimports,

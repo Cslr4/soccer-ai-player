@@ -24,7 +24,12 @@
       "Bash(cp \"c:/Users/13671/Desktop/绿茵英雄/backend/standalone.html\" \"c:/Users/13671/Desktop/绿茵英雄/frontend/standalone.html\" *)",
       "Bash(python -c ' *)",
       "Bash(curl -s http://127.0.0.1:8099/)",
-      "Bash(kill %1)"
+      "Bash(kill %1)",
+      "Bash(python -c \"from main import app; print\\('Import OK'\\)\")",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git tag *)",
+      "Bash(git push *)"
     ],
     "additionalDirectories": [
       "C:\\Users\\13671\\Desktop\\����ģ��\\backend",

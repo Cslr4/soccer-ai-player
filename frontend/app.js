@@ -401,6 +401,8 @@ function viewCreate() {
       </div>
       <div style="text-align:center;margin-top:12px;">
         <button style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:13px;" onclick="viewSaves()">← 返回存档列表</button>
+        <span style="margin:0 10px;color:var(--border2);">|</span>
+        <button style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:12px;" onclick="resetAISetup()">⚙ 重设 AI</button>
       </div>
     </div>`);
   setTimeout(() => fillTraitDropdowns(), 50);
@@ -932,6 +934,7 @@ async function viewSaves() {
       <div class="sub">球员生涯模拟</div>
       ${cards}
       <button class="new-game-btn" onclick="viewCreate()">＋ 创建新角色</button>
+      <div style="text-align:center;margin-top:12px;"><button style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:12px;" onclick="resetAISetup()">⚙ 重设 AI 配置</button></div>
     </div>`);
 }
 
@@ -1134,6 +1137,7 @@ async function doSetup() {
       api_key: $('#setup-key').value.trim(),
       base_url: $('#setup-url').value.trim(),
       model: $('#setup-model').value.trim(),
+      test: true,
     });
     localStorage.setItem('fb_ai_setup', JSON.stringify({
       api_key: $('#setup-key').value.trim(),
