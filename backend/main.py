@@ -83,6 +83,10 @@ def _state(pid):
 # ============================================================
 # 创建角色（AI 根据球队名判断等级）
 # ============================================================
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
 @app.post("/api/player/create")
 async def api_create(req: CreatePlayerReq):
     if req.position not in POSITIONS:
