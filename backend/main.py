@@ -655,19 +655,33 @@ class SetupReq(BaseModel):
 @app.post("/api/setup")
 async def api_setup(req: SetupReq):
     import config, ai_engine
-    if req.api_key:
-        config.DEEPSEEK_API_KEY = req.api_key
-        ai_engine.DEEPSEEK_API_KEY = req.api_key
-    if req.base_url:
-        config.DEEPSEEK_BASE_URL = req.base_url
-        ai_engine.DEEPSEEK_BASE_URL = req.base_url
-    if req.model:
-        config.DEEPSEEK_MODEL = req.model
-        ai_engine.DEEPSEEK_MODEL = req.model
+    key = req.api_key or config.DEEPSEEK_API_KEY
+    url = req.base_url or config.DEEPSEEK_BASE_URL
+    model = req.model or config.DEEPSEEK_MODEL
+    
+    # 测试连通性
+    try:
+        import httpx
+        async with httpx.AsyncClient(timeout=10.0) as c:
+            r = await c.post(f"{url}/v1/chat/completions",
+                headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+                json={"model": model, "messages": [{"role":"user","content":"hi"}], "max_tokens": 1})
+            if r.status_code >= 400:
+                return {"ready": False, "message": f"API 错误({r.status_code}): {r.text[:100]}"}
+    except Exception as e:
+        return {"ready": False, "message": f"连接失败: {str(e)[:100]}"}
+    
+    # 测试通过，保存配置
+    config.DEEPSEEK_API_KEY = key
+    config.DEEPSEEK_BASE_URL = url
+    config.DEEPSEEK_MODEL = model
+    ai_engine.DEEPSEEK_API_KEY = key
+    ai_engine.DEEPSEEK_BASE_URL = url
+    ai_engine.DEEPSEEK_MODEL = model
     global DEEPSEEK_API_KEY, DEEPSEEK_BASE_URL, DEEPSEEK_MODEL
-    DEEPSEEK_API_KEY = config.DEEPSEEK_API_KEY
-    DEEPSEEK_BASE_URL = config.DEEPSEEK_BASE_URL
-    DEEPSEEK_MODEL = config.DEEPSEEK_MODEL
+    DEEPSEEK_API_KEY = key
+    DEEPSEEK_BASE_URL = url
+    DEEPSEEK_MODEL = model
     return {"message": "配置已保存", "ready": True}
 
 
@@ -710,10 +724,19 @@ async def api_delete(pid: str):
 # ============================================================
 # 静态文件
 # ============================================================
-for _dir in [FRONTEND_DIR, os.path.join(os.getcwd(), "frontend"), os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend")]:
-    if os.path.isdir(_dir):
-        FRONTEND_DIR = _dir
+# 尝试多个可能的前端目录
+candidates = [
+    FRONTEND_DIR,
+    os.path.join(os.getcwd(), "frontend"),
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend"),
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "frontend"),
+]
+for _d in candidates:
+    _d = os.path.abspath(_d)
+    if os.path.isdir(_d) and os.path.isfile(os.path.join(_d, "index.html")):
+        FRONTEND_DIR = _d
         break
+print(f"  FRONTEND_DIR={FRONTEND_DIR}")
 
 @app.get("/style.css")
 async def serve_css():

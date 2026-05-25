@@ -1119,6 +1119,12 @@ function showSetup() {
   `);
 }
 
+async function resetAISetup() {
+  localStorage.removeItem('fb_ai_setup');
+  await api('POST', '/api/setup', { api_key: '', base_url: '', model: '' });
+  location.reload();
+}
+
 async function doSetup() {
   const btn = $('#create-btn'); btn.disabled = true; btn.innerHTML = '<span class="loading"></span>测试中...';
   const msg = $('#setup-msg');
