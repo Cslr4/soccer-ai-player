@@ -710,19 +710,27 @@ async def api_delete(pid: str):
 # ============================================================
 # 静态文件
 # ============================================================
-if os.path.isdir(FRONTEND_DIR):
-    @app.get("/style.css")
-    async def serve_css():
-        return FileResponse(os.path.join(FRONTEND_DIR, "style.css"))
-    @app.get("/app.js")
-    async def serve_js():
-        return FileResponse(os.path.join(FRONTEND_DIR, "app.js"))
-    @app.get("/")
-    async def serve():
-        return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
-    print(f"  前端: {FRONTEND_DIR}")
-    print(f"  浏览器打开 http://127.0.0.1:8000")
-else:
+for _dir in [FRONTEND_DIR, os.path.join(os.getcwd(), "frontend"), os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend")]:
+    if os.path.isdir(_dir):
+        FRONTEND_DIR = _dir
+        break
+
+@app.get("/style.css")
+async def serve_css():
+    return FileResponse(os.path.join(FRONTEND_DIR, "style.css"))
+
+@app.get("/app.js")
+async def serve_js():
+    return FileResponse(os.path.join(FRONTEND_DIR, "app.js"))
+
+@app.get("/")
+async def serve():
+    return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
+
+print(f"  前端: {FRONTEND_DIR}")
+print(f"  浏览器打开 http://127.0.0.1:8000")
+
+if not os.path.isdir(FRONTEND_DIR):
     print(f"  [警告] 未找到前端: {FRONTEND_DIR}")
 
 
