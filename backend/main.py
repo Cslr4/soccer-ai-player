@@ -8,7 +8,7 @@ import json
 import random
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, Response
+from fastapi.responses import FileResponse
 
 from config import POSITIONS, ALL_ATTRS, ROUNDS
 from models import CreatePlayerReq, AdjustAttrReq, FreeTalkReq, EventChoiceReq, DialogueEntry
@@ -83,10 +83,6 @@ def _state(pid):
 # ============================================================
 # 创建角色（AI 根据球队名判断等级）
 # ============================================================
-@app.get("/health")
-async def health():
-    return {"status": "ok"}
-
 @app.post("/api/player/create")
 async def api_create(req: CreatePlayerReq):
     if req.position not in POSITIONS:
@@ -655,44 +651,19 @@ class SetupReq(BaseModel):
 @app.post("/api/setup")
 async def api_setup(req: SetupReq):
     import config, ai_engine
-    key = req.api_key if req.api_key.strip() else config.DEEPSEEK_API_KEY
-    url = req.base_url if req.base_url.strip() else config.DEEPSEEK_BASE_URL
-    model = req.model if req.model.strip() else config.DEEPSEEK_MODEL
-
-    # 如果是空 key（重设），直接清空不测试
-    if not req.api_key.strip() and not key.strip():
-        config.DEEPSEEK_API_KEY = "请设置 DEEPSEEK_API_KEY 环境变量"
-        config.DEEPSEEK_BASE_URL = "请设置 DEEPSEEK_BASE_URL 环境变量"
-        config.DEEPSEEK_MODEL = "请设置 DEEPSEEK_MODEL 环境变量"
-        import ai_engine
-        ai_engine.DEEPSEEK_API_KEY = config.DEEPSEEK_API_KEY
-        ai_engine.DEEPSEEK_BASE_URL = config.DEEPSEEK_BASE_URL
-        ai_engine.DEEPSEEK_MODEL = config.DEEPSEEK_MODEL
-        return {"message": "已清除配置", "ready": False}
-    
-    # 测试连通性
-    try:
-        import httpx
-        async with httpx.AsyncClient(timeout=10.0) as c:
-            r = await c.post(f"{url}/v1/chat/completions",
-                headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
-                json={"model": model, "messages": [{"role":"user","content":"hi"}], "max_tokens": 1})
-            if r.status_code >= 400:
-                return {"ready": False, "message": f"API 错误({r.status_code}): {r.text[:100]}"}
-    except Exception as e:
-        return {"ready": False, "message": f"连接失败: {str(e)[:100]}"}
-    
-    # 测试通过，保存配置
-    config.DEEPSEEK_API_KEY = key
-    config.DEEPSEEK_BASE_URL = url
-    config.DEEPSEEK_MODEL = model
-    ai_engine.DEEPSEEK_API_KEY = key
-    ai_engine.DEEPSEEK_BASE_URL = url
-    ai_engine.DEEPSEEK_MODEL = model
+    if req.api_key:
+        config.DEEPSEEK_API_KEY = req.api_key
+        ai_engine.DEEPSEEK_API_KEY = req.api_key
+    if req.base_url:
+        config.DEEPSEEK_BASE_URL = req.base_url
+        ai_engine.DEEPSEEK_BASE_URL = req.base_url
+    if req.model:
+        config.DEEPSEEK_MODEL = req.model
+        ai_engine.DEEPSEEK_MODEL = req.model
     global DEEPSEEK_API_KEY, DEEPSEEK_BASE_URL, DEEPSEEK_MODEL
-    DEEPSEEK_API_KEY = key
-    DEEPSEEK_BASE_URL = url
-    DEEPSEEK_MODEL = model
+    DEEPSEEK_API_KEY = config.DEEPSEEK_API_KEY
+    DEEPSEEK_BASE_URL = config.DEEPSEEK_BASE_URL
+    DEEPSEEK_MODEL = config.DEEPSEEK_MODEL
     return {"message": "配置已保存", "ready": True}
 
 
@@ -735,42 +706,19 @@ async def api_delete(pid: str):
 # ============================================================
 # 静态文件
 # ============================================================
-# 尝试多个可能的前端目录
-candidates = [
-    FRONTEND_DIR,
-    os.path.join(os.getcwd(), "frontend"),
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend"),
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "frontend"),
-]
-for _d in candidates:
-    _d = os.path.abspath(_d)
-    if os.path.isdir(_d) and os.path.isfile(os.path.join(_d, "index.html")):
-        FRONTEND_DIR = _d
-        break
-print(f"  FRONTEND_DIR={FRONTEND_DIR}")
-
-@app.get("/sw.js")
-async def no_sw():
-    return Response(content="", media_type="application/javascript")
-
-@app.get("/favicon.ico")
-async def no_fav():
-    return Response(status_code=204)
-
-@app.get("/")
-async def serve():
-    # Try standalone first, fall back to split files
-    f = os.path.join(FRONTEND_DIR, "standalone.html")
-    if not os.path.isfile(f):
-        f = os.path.join(FRONTEND_DIR, "index.html")
-    if not os.path.isfile(f):
-        f = os.path.join(os.path.dirname(os.path.abspath(__file__)), "standalone.html")
-    return FileResponse(f)
-
-print(f"  前端: {FRONTEND_DIR}")
-print(f"  浏览器打开 http://127.0.0.1:8000")
-
-if not os.path.isdir(FRONTEND_DIR):
+if os.path.isdir(FRONTEND_DIR):
+    @app.get("/style.css")
+    async def serve_css():
+        return FileResponse(os.path.join(FRONTEND_DIR, "style.css"))
+    @app.get("/app.js")
+    async def serve_js():
+        return FileResponse(os.path.join(FRONTEND_DIR, "app.js"))
+    @app.get("/")
+    async def serve():
+        return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
+    print(f"  前端: {FRONTEND_DIR}")
+    print(f"  浏览器打开 http://127.0.0.1:8000")
+else:
     print(f"  [警告] 未找到前端: {FRONTEND_DIR}")
 
 
@@ -793,30 +741,9 @@ if __name__ == "__main__":
         webbrowser.open("http://127.0.0.1:8000")
     threading.Thread(target=open_browser, daemon=True).start()
 
-    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8000)), log_level="info")
+    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info")
 
 
 @app.on_event("shutdown")
 async def shutdown():
     await close_client()
-
-if __name__ == "__main__":
-    import io
-    import sys as _sys
-    _sys.stdout = io.TextIOWrapper(_sys.stdout.buffer, encoding='utf-8', errors='replace')
-    import uvicorn
-    import webbrowser
-    import threading
-    import time
-
-    print("=" * 50)
-    print("  命运绿茵 - 球员生涯模拟")
-    print("=" * 50)
-
-    def open_browser():
-        time.sleep(1.5)
-        webbrowser.open("http://127.0.0.1:8000")
-    threading.Thread(target=open_browser, daemon=True).start()
-
-    port = int(os.getenv("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")
