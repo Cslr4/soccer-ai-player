@@ -738,17 +738,15 @@ for _d in candidates:
         break
 print(f"  FRONTEND_DIR={FRONTEND_DIR}")
 
-@app.get("/style.css")
-async def serve_css():
-    return FileResponse(os.path.join(FRONTEND_DIR, "style.css"))
-
-@app.get("/app.js")
-async def serve_js():
-    return FileResponse(os.path.join(FRONTEND_DIR, "app.js"))
-
 @app.get("/")
 async def serve():
-    return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
+    # Try standalone first, fall back to split files
+    f = os.path.join(FRONTEND_DIR, "standalone.html")
+    if not os.path.isfile(f):
+        f = os.path.join(FRONTEND_DIR, "index.html")
+    if not os.path.isfile(f):
+        f = os.path.join(os.path.dirname(os.path.abspath(__file__)), "standalone.html")
+    return FileResponse(f)
 
 print(f"  前端: {FRONTEND_DIR}")
 print(f"  浏览器打开 http://127.0.0.1:8000")
